@@ -1,0 +1,26 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Tracking</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAkRVJap6AEr0eHykjpm_t70YmR6MxP3MQ&callback=initMap" async defer></script>
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div style="height: 50%; width: 80%; padding-bottom: 200px; margin-top: 200px;">
+    <h1>Vehicle Tracking </h1>
+    <input type="date" id="datePicker" value="2024-10-01" onchange="fetchRouteData()">
+    <div id="map"></div>
+   </div>
+</body>
+</html>
