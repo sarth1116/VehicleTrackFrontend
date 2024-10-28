@@ -27,7 +27,7 @@ function initMap() {
 // Fetch route data from backend based on selected date
 function fetchRouteData() {
     const selectedDate = document.getElementById('datePicker').value; // Get selected date
-    fetch(`https://vehicle-track-backend-yrvz.vercel.app/api/route/${selectedDate}`)
+    fetch(`https://vehicle-track-back.vercel.app/api/route/${selectedDate}`)
         .then((response) => response.json())
         .then((data) => {
             path = data.map(coord => new google.maps.LatLng(coord.latitude, coord.longitude));
