@@ -2,8 +2,8 @@ let map;
 let vehicleMarker;
 let path = [];
 let index = 0;
-let interval;
 let traveledPath; // Polyline to show the path traveled
+let interval;
 
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
@@ -50,33 +50,31 @@ function startVehicleMovement() {
             return;
         }
 
-        // Move the vehicle from the current point to the next one with a smooth animation
         moveVehicleSmoothly(path[index], path[index + 1]);
 
-        // Add a numbered marker at each stop
+        // Add numbered markers only if new position
         new google.maps.Marker({
             position: path[index],
             map: map,
             label: {
-                text: `${index + 1}`, // Number each stop
+                text: `${index + 1}`,
                 color: "white",
                 fontSize: "12px",
                 fontWeight: "bold"
             },
             icon: {
-                url: "https://img.icons8.com/emoji/48/000000/red-circle-emoji.png", // Custom icon for stops
-                scaledSize: new google.maps.Size(15, 15) // Adjust the size
+                url: "https://img.icons8.com/emoji/48/000000/red-circle-emoji.png",
+                scaledSize: new google.maps.Size(15, 15)
             },
             title: `Stop ${index + 1}`
         });
 
         index++;
-    }, 4000); // Slows down movement by increasing the delay between main points
+    }, 4000);
 }
 
-// Interpolate between two points to create a smooth transition
 function moveVehicleSmoothly(start, end) {
-    const steps = 100;
+    const steps = 200;  // More steps for smoother transition
     const latStep = (end.lat() - start.lat()) / steps;
     const lngStep = (end.lng() - start.lng()) / steps;
 
@@ -93,11 +91,10 @@ function moveVehicleSmoothly(start, end) {
         const newPos = { lat: newLat, lng: newLng };
 
         vehicleMarker.setPosition(newPos);
-        traveledPath.getPath().push(newPos);  // Update traveled path
+        traveledPath.getPath().push(newPos);
 
         stepCount++;
-    }, 40); // Adjust this interval to control speed and smoothness
+    }, 40);
 }
 
-// Ensure initMap is available globally
 window.initMap = initMap;
