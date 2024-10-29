@@ -35,8 +35,13 @@ function initMap() {
 
 // Fetch route data from the backend
 function fetchRouteData() {
-    fetch("https://vehicle-track-backend.vercel.app/api/route")
-        .then(response => response.json())
+    fetch("https://vehicle-track-backend.vercel.app/api/route") // Use your backend URL
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
         .then(data => {
             // Map data points into path coordinates
             path = data.map(coord => new google.maps.LatLng(coord.latitude, coord.longitude));
