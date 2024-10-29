@@ -1,115 +1,122 @@
 let map;
 let vehicleMarker;
-let path = [];
-let index = 0;
-let interval;
-let traveledPath; // Polyline to show the path traveled
+let routeCoordinates = [];
+let animationSpeed = 30; // Speed of movement (higher = slower)
+let stopDelay = 500; // Stop for 0.5 seconds (500 milliseconds)
+let currentIndex = 0; // Index to track the vehicle's current position on the route
+let vehiclePath = []; // Array to store the path of the vehicle for a trailing effect
 
-// Initialize Google Map
+// Initialize the Google Map
 function initMap() {
-    map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 19.0760, lng: 72.8777 }, // Center at Mumbai
-        zoom: 10
-    });
+  // Initialize the map centered at a specified latitude and longitude
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 19.7675, lng: 74.475 },
+    zoom: 14,
+  });
 
-    // Initialize the vehicle marker with an icon and initial position
-    vehicleMarker = new google.maps.Marker({
-        position: { lat: 19.0760, lng: 72.8777 },
-        map: map,
-        icon: "https://img.icons8.com/color/30/000000/car.png"
-    });
+  // Create a vehicle marker with an icon and initial position
+  vehicleMarker = new google.maps.Marker({
+    position: { lat: 19.7675, lng: 74.475 },
+    map: map,
+    icon: {
+      url: "https://maps.google.com/mapfiles/kml/shapes/cabs.png", // Taxi icon
+      scaledSize: new google.maps.Size(50, 50), // Resize the icon
+    },
+  });
 
-    // Initialize an empty polyline for the traveled path
-    traveledPath = new google.maps.Polyline({
-        path: [],
+  // Fetch the vehicle route data from the backend and start the animation
+  fetchVehicleData();
+}
+
+// Fetch vehicle movement data from the backend
+function fetchVehicleData() {
+  fetch("https://vehicle-track-backend.vercel.app/api/vehicle")
+    .then((response) => response.json())
+    .then((data) => {
+      // Map the data to route coordinates
+      routeCoordinates = data.map((location) => ({
+        lat: location.latitude,
+        lng: location.longitude,
+      }));
+
+      // Draw the route with markers for each stop
+      drawRouteWithMarkers();
+
+      // Start animating the vehicle along the route
+      animateVehicle();
+    })
+    .catch((error) => console.error("Error fetching vehicle data:", error));
+}
+
+// Draw the full route and add numbered markers for each stop
+function drawRouteWithMarkers() {
+  // Draw the route as a polyline
+  new google.maps.Polyline({
+    path: routeCoordinates,
+    geodesic: true,
+    strokeColor: "#FF0000", // Route color
+    strokeOpacity: 1.0,
+    strokeWeight: 2,
+    map: map,
+  });
+
+  // Add numbered markers for each stop along the route
+  routeCoordinates.forEach((position, index) => {
+    new google.maps.Marker({
+      position,
+      map: map,
+      label: {
+        text: `${index + 1}`, // Display stop number (1-based index)
+        color: "black",
+        fontSize: "16px",
+      },
+    });
+  });
+}
+
+// Animate the vehicle marker along the route
+function animateVehicle() {
+  // Check if there are remaining route points to animate
+  if (currentIndex < routeCoordinates.length - 1) {
+    const start = routeCoordinates[currentIndex];
+    const end = routeCoordinates[currentIndex + 1];
+
+    let stepCount = 100; // Number of steps between two points
+    let step = 0;
+    let deltaLat = (end.lat - start.lat) / stepCount; // Latitude step increment
+    let deltaLng = (end.lng - start.lng) / stepCount; // Longitude step increment
+
+    let interval = setInterval(() => {
+      step++;
+
+      // Calculate the next position of the vehicle
+      const nextLat = start.lat + deltaLat * step;
+      const nextLng = start.lng + deltaLng * step;
+      const nextPosition = { lat: nextLat, lng: nextLng };
+
+      // Move the vehicle marker to the new position
+      vehicleMarker.setPosition(nextPosition);
+      map.panTo(nextPosition);
+
+      // Update vehicle path for a trailing effect
+      vehiclePath.push(nextPosition);
+      new google.maps.Polyline({
+        path: vehiclePath,
         geodesic: true,
-        strokeColor: "#FF0000", // Path color
+        strokeColor: "#0000FF", // Trailing path color
         strokeOpacity: 0.6,
-        strokeWeight: 4
-    });
-    traveledPath.setMap(map);
+        strokeWeight: 2,
+        map: map,
+      });
 
-    // Fetch route data from the backend
-    fetchRouteData();
+      // If reached the end of the current segment, prepare for the next
+      if (step === stepCount) {
+        clearInterval(interval);
+        currentIndex++;
+        setTimeout(() => {
+          animateVehicle(); // Move to the next point after the stop delay
+        }, stopDelay);
+      }
+    }, animationSpeed);
+  }
 }
-
-// Fetch route data from the backend
-function fetchRouteData() {
-    fetch("https://vehicle-track-backend.vercel.app/api/route") // Use your backend URL
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Map data points into path coordinates
-            path = data.map(coord => new google.maps.LatLng(coord.latitude, coord.longitude));
-            startVehicleMovement();
-        })
-        .catch(error => console.error("Error fetching route data:", error));
-}
-
-// Start moving the vehicle marker along the route
-function startVehicleMovement() {
-    index = 0;
-    if (interval) clearInterval(interval);
-
-    interval = setInterval(() => {
-        if (index >= path.length - 1) {
-            clearInterval(interval);
-            return;
-        }
-
-        // Move the vehicle from the current point to the next one with a smooth animation
-        moveVehicleSmoothly(path[index], path[index + 1]);
-
-        // Add a numbered marker at each stop
-        new google.maps.Marker({
-            position: path[index],
-            map: map,
-            label: {
-                text: `${index + 1}`, // Number each stop
-                color: "white",
-                fontSize: "12px",
-                fontWeight: "bold"
-            },
-            icon: {
-                url: "https://img.icons8.com/emoji/48/000000/red-circle-emoji.png", // Custom icon for stops
-                scaledSize: new google.maps.Size(15, 15) // Adjust size
-            },
-            title: `Stop ${index + 1}`
-        });
-
-        index++;
-    }, 4000); // Adjust delay between main points
-}
-
-// Smoothly transition the vehicle between two points
-function moveVehicleSmoothly(start, end) {
-    const steps = 100;
-    const latStep = (end.lat() - start.lat()) / steps;
-    const lngStep = (end.lng() - start.lng()) / steps;
-
-    let stepCount = 0;
-    const smoothInterval = setInterval(() => {
-        if (stepCount >= steps) {
-            clearInterval(smoothInterval);
-            vehicleMarker.setPosition(end);
-            return;
-        }
-
-        // Calculate next position
-        const newLat = start.lat() + latStep * stepCount;
-        const newLng = start.lng() + lngStep * stepCount;
-        const newPos = { lat: newLat, lng: newLng };
-
-        vehicleMarker.setPosition(newPos);
-        traveledPath.getPath().push(newPos);  // Update traveled path
-
-        stepCount++;
-    }, 40); // Adjust interval to control speed and smoothness
-}
-
-// Ensure initMap is available globally
-window.initMap = initMap;
