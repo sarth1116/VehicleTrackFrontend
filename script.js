@@ -31,7 +31,7 @@ function initMap() {
 }
 
 function fetchRouteData() {
-    fetch("https://vehicle-track-back.vercel.app/api/route")
+    fetch("https://vehicle-track-backend.vercel.app/api/route")
         .then(response => response.json())
         .then(data => {
             path = data.map(coord => new google.maps.LatLng(coord.latitude, coord.longitude));
@@ -75,8 +75,9 @@ function startVehicleMovement() {
 }
 
 // Interpolate between two points to create a smooth transition
+
 function moveVehicleSmoothly(start, end) {
-    const steps = 100; // Number of steps for smooth movement
+    const steps = 100;
     const latStep = (end.lat() - start.lat()) / steps;
     const lngStep = (end.lng() - start.lng()) / steps;
 
@@ -84,22 +85,21 @@ function moveVehicleSmoothly(start, end) {
     const smoothInterval = setInterval(() => {
         if (stepCount >= steps) {
             clearInterval(smoothInterval);
-            vehicleMarker.setPosition(end); // Set final position
+            vehicleMarker.setPosition(end);
             return;
         }
 
-        // Set vehicle's intermediate position
-        vehicleMarker.setPosition({
-            lat: start.lat() + latStep * stepCount,
-            lng: start.lng() + lngStep * stepCount
-        });
+        const newLat = start.lat() + latStep * stepCount;
+        const newLng = start.lng() + lngStep * stepCount;
+        const newPos = { lat: newLat, lng: newLng };
 
-        // Extend the traveled path with the current position
-        const currentPath = traveledPath.getPath();
-        currentPath.push(vehicleMarker.getPosition());
+        vehicleMarker.setPosition(newPos);
+        traveledPath.getPath().push(newPos);  // Update traveled path
 
         stepCount++;
-    }, 40); // Adjust this interval to control smoothness and speed
+    }, 40); // Adjust this interval to control speed and smoothness
 }
+
+
 
 window.initMap = initMap;
