@@ -75,7 +75,6 @@ function startVehicleMovement() {
 }
 
 // Interpolate between two points to create a smooth transition
-
 function moveVehicleSmoothly(start, end) {
     const steps = 100;
     const latStep = (end.lat() - start.lat()) / steps;
@@ -100,6 +99,5 @@ function moveVehicleSmoothly(start, end) {
     }, 40); // Adjust this interval to control speed and smoothness
 }
 
-
-
+// Ensure initMap is available globally
 window.initMap = initMap;
