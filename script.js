@@ -10,13 +10,13 @@ let vehiclePath = []; // Array to store the path of the vehicle for a trailing e
 function initMap() {
   // Initialize the map centered at a specified latitude and longitude
   map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: 19.7675, lng: 74.475 },
+    center: { lat: 19.0760, lng: 72.8777 },
     zoom: 14,
   });
 
   // Create a vehicle marker with an icon and initial position
   vehicleMarker = new google.maps.Marker({
-    position: { lat: 19.7675, lng: 74.475 },
+    position: {  lat: 19.0760, lng: 72.8777},
     map: map,
     icon: {
       url: "https://maps.google.com/mapfiles/kml/shapes/cabs.png", // Taxi icon
