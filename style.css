@@ -1,77 +1,16 @@
-/* Reset some default styles */
-* {
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
 }
-
-body, html {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: aqua;
-   
+h1 {
+    margin: 20px;
 }
-
-/* Container styling */
-.container {
-    
-   
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
-}
-
-/* Date picker styling */
-.date-picker-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: aqua;
-}
-
-label {
-    font-weight: bold;
-    margin-right: 10px;
-}
-
-input[type="date"] {
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-}
-
-/* Map container */
 #map {
-    width: 100%;
     height: 500px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .container {
-        width: 100%;
-        padding: 10px;
-    }
-    #map {
-        height: 300px;
-    }
-}
-
-@media (max-width: 480px) {
-    #map {
-        height: 250px;
-    }
-    input[type="date"] {
-        width: 100%;
-        font-size: 0.9rem;
-    }
+    width: 80%;
+    margin-top: 20px;
 }
